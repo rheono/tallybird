@@ -1,0 +1,24 @@
+{
+  "name": "tallybird",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A deliberately vulnerable invoicing app for learning how AI-built apps get hacked. Run it on your own machine only.",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=18.17"
+  },
+  "scripts": {
+    "start": "node server/index.js",
+    "start:fixed": "node server/index.js --fixed",
+    "walkthrough": "node scripts/walkthrough.mjs",
+    "build": "vite build web --outDir ../dist --emptyOutDir && vite build web --mode fixed --outDir ../dist-fixed --emptyOutDir",
+    "dev:web": "vite web"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "vite": "^6.0.0"
+  }
+}
